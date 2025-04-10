@@ -4,11 +4,11 @@
 #include <cmath>
 using namespace std;
 
-// Fungsi untuk menghitung variansi dalam satu blok
+// menghitung variansi dalam satu blok
 double calculateBlockVariance(const vector<vector<vector<unsigned char>>> &rgb, int startX, int startY, int width, int height)
 {
     vector<double> valR, valG, valB;
-    // Kumpulkan nilai RGB dari blok
+    // masukkan nilai RGB dari blok ke vector val RGB
     for (int y = startY; y < startY + (height) && y < (int)rgb.size(); y++)
     {
         for (int x = startX; x < startX + (width) && x < (int)rgb[y].size(); x++)
@@ -21,7 +21,7 @@ double calculateBlockVariance(const vector<vector<vector<unsigned char>>> &rgb, 
 
     int N = height * width;
 
-    // Hitung rata-rata RGB
+    // hitung rata-rata RGB
     double avgR = 0, avgG = 0, avgB = 0;
     for (int i = 0; i < N; i++)
     {
@@ -33,12 +33,10 @@ double calculateBlockVariance(const vector<vector<vector<unsigned char>>> &rgb, 
     avgG /= N;
     avgB /= N;
 
+    // hitung variansi untuk setiap RGB
     double varR = 0;
     double varG = 0;
     double varB = 0;
-
-    // Hitung variansi untuk setiap kanal warna
-    double varR = 0, varG = 0, varB = 0;
     for (int i = 0; i < N; i++)
     {
         varR += (pow(valR[i] - avgR, 2));
@@ -50,6 +48,7 @@ double calculateBlockVariance(const vector<vector<vector<unsigned char>>> &rgb, 
     varG /= N;
     varB /= N;
 
-    // Hitung variansi
+    // hitung variansi
     double variance = (varR + varG + varB) / 3;
+    return variance;
 }
