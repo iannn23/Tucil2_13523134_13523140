@@ -7,12 +7,8 @@ using namespace std;
 
 int main() {
     string path;
-    string output_path;
     cout << "Masukkan path gambar (jpg/png): ";
     cin >> path;
-    cout << "\nMasukkan path untuk simpan gambar hasil (misal: test/output.png): ";
-    cin >> output_path;
-    
 
     int width, height;
     auto rgb = loadImage(path, width, height);
@@ -31,6 +27,5 @@ int main() {
         }
     }
 
-    saveImage(output_path, rgb, width, height); 
     return 0;
 }
