@@ -50,8 +50,8 @@ void saveImage(const string&path, const vector<vector<vector<unsigned char>>>& r
     int success = stbi_write_png(path.c_str(), width, height, 3, data.data(), width * 3);
 
     if (!success) {
-        cerr << "❌ Gagal menyimpan gambar ke: " << path << endl;
+        cerr << "Gagal menyimpan gambar ke: " << path << endl;
     } else {
-        cout << "✅ Gambar berhasil disimpan ke: " << path << endl;
+        cout << "Gambar berhasil disimpan ke: " << path << endl;
     }
 }
