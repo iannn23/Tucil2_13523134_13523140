@@ -2,6 +2,10 @@
 #include <vector>
 #include <cmath>
 #include <string>
+#include "..\ErrorMeasurement\MAD\MAD.cpp"
+#include "..\ErrorMeasurement\MaxPixelDiff\MaxPixelDiff.cpp"
+#include "..\ErrorMeasurement\Variance\Variance.cpp"
+#include "..\ErrorMeasurement\Entropy\Entropy.cpp"
 
 using namespace std;
 
@@ -27,17 +31,14 @@ void getAverageColor(
 ) {
     long long sumR = 0, sumG = 0, sumB = 0;
     
-    // Cek batas array dan hitung dimensi valid
     int validWidth = min(width, max(0, (int)rgb[0].size() - x));
     int validHeight = min(height, max(0, (int)rgb.size() - y));
 
-    // Kalau area invalid (di luar gambar), kembalikan warna 0
     if (validWidth <= 0 || validHeight <= 0 || x < 0 || y < 0) {
         avgR = avgG = avgB = 0;
         return;
     }
 
-    // Loop cuma di area valid
     for (int i = y; i < y + validHeight; i++) {
         for (int j = x; j < x + validWidth; j++) {
             sumR += rgb[i][j][0];
@@ -46,7 +47,6 @@ void getAverageColor(
         }
     }
 
-    // Hitung rata-rata berdasarkan area valid
     int total = validWidth * validHeight;
     avgR = static_cast<unsigned char>(sumR / total);
     avgG = static_cast<unsigned char>(sumG / total);
@@ -71,7 +71,7 @@ double calculateVariance(
     }
 
     int totalPixels = width * height;
-    return static_cast<double>(totalError) / (totalPixels * 3); // rata-rata error 3 channel
+    return static_cast<double>(totalError) / (totalPixels * 3); 
 }
 
 Node* buildQuadtree (
@@ -95,9 +95,18 @@ Node* buildQuadtree (
 
     double variance = 0.0;
 
-    if (errorMethod == "variance") {
-        variance = calculateVariance(rgb, x, y, width, height, node->avgR, node->avgG, node->avgB);
-    }    
+    if (errorMethod == "Variance") {
+        variance = calculateBlockVariance(rgb, x, y, width, height);
+    }
+    else if (errorMethod == "MAD") {
+        variance = calculateBlockMAD(rgb, x, y, width, height);
+    }
+    else if (errorMethod == "MaxPixelDifference") {
+        variance = calculateBlockMaxPixelDifference(rgb, x, y, width, height);
+    }
+    else if (errorMethod == "Entropy") {
+        variance = calculateBlockEntropy(rgb, x, y, width, height);
+    }
    
 
     if (variance <= threshold) {
@@ -108,7 +117,7 @@ Node* buildQuadtree (
 
     node->isLeaf = false;
 
-    int halfWidth = (width + 1) / 2;  // Ceiling division untuk sisi kiri/atas
+    int halfWidth = (width + 1) / 2; 
     int halfHeight = (height + 1) / 2;
 
     node->topLeft = buildQuadtree(rgb, x, y, halfWidth, halfHeight, minBlockSize, threshold, errorMethod);
