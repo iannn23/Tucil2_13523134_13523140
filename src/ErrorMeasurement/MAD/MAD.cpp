@@ -3,7 +3,7 @@
 #include <cmath>
 using namespace std;
 
-// Fungsi untuk menghitung Mean Absolute Deviation (MAD) antara dua matriks gambar RGB
+// menghitung Mean Absolute Deviation (MAD) antara dua matriks gambar rgb
 double calculateBlockMAD(const vector<vector<vector<unsigned char>>> &rgb, int startX, int startY, int width, int height)
 {
     vector<double> valR, valG, valB;
@@ -20,7 +20,12 @@ double calculateBlockMAD(const vector<vector<vector<unsigned char>>> &rgb, int s
 
     int N = height * width;
 
-    // hitung rata-rata RGB
+    if (N == 0)
+    {
+        return 0;
+    }
+
+    // hitung rata-rata rgb
     double avgR = 0, avgG = 0, avgB = 0;
     for (int i = 0; i < N; i++)
     {
@@ -32,7 +37,7 @@ double calculateBlockMAD(const vector<vector<vector<unsigned char>>> &rgb, int s
     avgG /= N;
     avgB /= N;
 
-    // hitung variansi untuk setiap RGB
+    // hitung mad untuk setiap rgb
     double madR = 0;
     double madG = 0;
     double madB = 0;
@@ -47,7 +52,6 @@ double calculateBlockMAD(const vector<vector<vector<unsigned char>>> &rgb, int s
     madG /= N;
     madB /= N;
 
-    // Hitung MAD rata-rata untuk ketiga kanal warna
+    // hitung MAD rata-rata untuk rgb
     double MAD = (madR + madG + madB) / 3;
     return MAD;
-}
