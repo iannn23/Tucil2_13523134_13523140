@@ -1,3 +1,6 @@
+PERLU CEK!
+1. save condition (png, jpg, )
+
 image processsing and input
 1. Input
     1) Input alamat gambar 
@@ -11,3 +14,5 @@ image processsing and input
 2. Image preprocessing
     Mengambil width + height
     menggunakan stbi_load
+
+3. Quadtree
