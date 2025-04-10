@@ -1,5 +1,11 @@
 PERLU CEK!
 1. save condition (png, jpg, )
+2. delete quadtree
+
+Prompts
+1. uji coba upload
+C:\Users\Mahesa\Downloads\image_1709283603181.png
+C:\Users\Mahesa\Downloads\test\apalah.png
 
 image processsing and input
 1. Input
