@@ -1,0 +1,49 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include "../ImageIO/ImageIO.cpp"
+#include "Quadtree.cpp"
+using namespace std;
+
+// Tambahin deklarasi semua fungsi yang lo udah punya:
+Node* buildQuadtree(const vector<vector<vector<unsigned char>>>&, int, int, int, int, int, double, string);
+void reconstructImage(Node*, vector<vector<vector<unsigned char>>>&);
+void deleteTree(Node*);
+
+// Fungsi main untuk uji coba
+int main() {
+    string path = "C:\\Users\\Mahesa\\Downloads\\1920p.jpg";
+    string outputPath = "C:\\Users\\Mahesa\\Downloads\\test\\apalah.png";
+    
+    // ...
+
+
+    int width, height;
+    auto rgb = loadImage(path, width, height);
+
+    cout << "✅ Gambar berhasil dibaca: " << width << "x" << height << endl;
+
+    // Build quadtree
+    int minBlockSize = 8;
+    double threshold = 1; // bisa dicoba ubah
+    string errorMethod = "variance";
+
+
+    Node* root = buildQuadtree(rgb, 0, 0, width, height, minBlockSize, threshold, errorMethod);
+
+    // Siapkan buffer output
+    vector<vector<vector<unsigned char>>> output(height, vector<vector<unsigned char>>(width, vector<unsigned char>(3)));
+
+    // Rekonstruksi dari quadtree
+    reconstructImage(root, output);
+
+    // Simpan hasilnya
+    saveImage(outputPath, output, width, height);
+
+    cout << "✅ Gambar hasil disimpan sebagai 'hasil.png'" << endl;
+
+    // Bebaskan memori
+    deleteTree(root);
+
+    return 0;
+}
