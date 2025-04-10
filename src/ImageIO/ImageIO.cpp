@@ -46,7 +46,7 @@ void saveImage(const string&path, const vector<vector<vector<unsigned char>>>& r
             data[idx + 2] = rgb[y][x][2]; // B
         }
     }
-    // Simpan sebagai PNG (lu bisa ganti ke JPG kalo mau)
+    
     int success = stbi_write_png(path.c_str(), width, height, 3, data.data(), width * 3);
 
     if (!success) {
