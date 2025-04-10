@@ -56,6 +56,6 @@ double calculateBlockVariance(const vector<vector<vector<unsigned char>>> &rgb, 
     // hitung variansi
     double variance = (varR + varG + varB) / 3;
     return variance;
-}
+
 
 
