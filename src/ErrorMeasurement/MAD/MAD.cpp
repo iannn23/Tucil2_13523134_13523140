@@ -55,3 +55,4 @@ double calculateBlockMAD(const vector<vector<vector<unsigned char>>> &rgb, int s
     // hitung MAD rata-rata untuk rgb
     double MAD = (madR + madG + madB) / 3;
     return MAD;
+}
