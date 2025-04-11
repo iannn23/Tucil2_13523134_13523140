@@ -25,9 +25,6 @@ using namespace std;
 // 5. kedalaman pohon
 // 6. banyak simpul pohon
 // 7. gambar hasil kompresi pada alamat yang sudah ditentukan
-Node *buildQuadtree(const vector<vector<vector<unsigned char>>> &, int, int, int, int, int, double, string);
-void reconstructImage(Node *, vector<vector<vector<unsigned char>>> &);
-void deleteTree(Node *);
 
 int main()
 {
@@ -47,9 +44,36 @@ int main()
 
     while (true)
     {
-        cout << "Input alamat absolut file gambar yang ingin dikompresi: ";
+        cout << "Input alamat absolut file gambar yang ingin dikompresi (inputPath): ";
         getline(cin, inputPath);
-        // auto rgb = loadImage(inputPath, width, height);
+        if (inputPath.empty())
+        {
+            cout << "Error: Alamat file tidak boleh kosong. Silakan coba lagi.\n";
+            continue;
+        }
+        // Hapus tanda kutip di awal dan akhir jika ada
+        if (inputPath.front() == '"' && inputPath.back() == '"')
+        {
+            inputPath = inputPath.substr(1, inputPath.length() - 2);
+        }
+        cout << "Mencoba mengakses: " << inputPath << endl;
+        if (!fs::exists(inputPath))
+        {
+            cout << "Error: File tidak ditemukan. Silakan masukkan alamat file yang valid.\n";
+            // Tambahkan informasi tambahan
+            fs::path pathObj(inputPath);
+            cout << "Direktori: " << pathObj.parent_path().string() << endl;
+            cout << "Nama file: " << pathObj.filename().string() << endl;
+            if (!fs::exists(pathObj.parent_path()))
+            {
+                cout << "Direktori tidak ditemukan!\n";
+            }
+            else
+            {
+                cout << "Direktori ditemukan, tetapi file tidak ada.\n";
+            }
+            continue;
+        }
         break;
     }
 
@@ -64,7 +88,7 @@ int main()
         cin >> pilihmetode;
 
         // error message handling pilihan metode
-        if (!(pilihmetode))
+        if (cin.fail())
         {
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -72,13 +96,11 @@ int main()
             continue;
         }
 
-        // validasi input metode
         if (pilihmetode < 1 || pilihmetode > 4)
         {
             cout << "Kesalahan pada input: harap masukkan angka antara 1 - 4." << endl;
             continue;
         }
-
         break;
     }
     // input threshold
@@ -86,7 +108,7 @@ int main()
     {
         cout << "Masukkan nilai threshold: ";
         cin >> threshold;
-        if (!threshold)
+        if (cin.fail())
         {
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -96,7 +118,7 @@ int main()
 
         if (threshold < 0)
         {
-            cout << "" << endl;
+            cout << "Kesalahan pada input: Threshold tidak boleh negatif. Silakan masukkan nilai yang valid.\n";
             continue;
         }
         break;
@@ -107,7 +129,7 @@ int main()
     {
         cout << "Masukkan ukuran blok minimum: ";
         cin >> minBlockSize;
-        if (!minBlockSize)
+        if (cin.fail())
         {
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -117,14 +139,101 @@ int main()
 
         if (minBlockSize < 0)
         {
-            cout << "" << endl;
+            cout << "Error: Ukuran blok minimum tidak boleh negatif. Silakan masukkan nilai yang valid.\n";
             continue;
         }
         break;
     }
 
+    // input alamat output gambar
+    cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Bersihkan buffer
+    while (true)
+    {
+        cout << "Input alamat absolut untuk file gambar yang sudah dikompresi (outputPath): ";
+        getline(cin, outputPath);
+        if (outputPath.empty())
+        {
+            cout << "Error: Alamat file tidak boleh kosong. Silakan coba lagi.\n";
+            continue;
+        }
+        // Hapus tanda kutip di awal dan akhir jika ada
+        if (outputPath.front() == '"' && outputPath.back() == '"')
+        {
+            outputPath = inputPath.substr(1, inputPath.length() - 2);
+        }
+        // Cek apakah direktori output valid
+        fs::path outputPathObj = fs::path(outputPath);
+        fs::path outputDir = outputPathObj.parent_path();
+        if (!outputDir.empty() && !fs::exists(outputDir))
+        {
+            cout << "Error: Direktori output tidak ditemukan. Silakan masukkan alamat yang valid.\n";
+            continue;
+        }
+        // Cek apakah outputPath adalah direktori
+        if (fs::exists(outputPathObj) && fs::is_directory(outputPathObj))
+        {
+            // Jika direktori, tambahkan nama file default
+            outputPath = outputPathObj.string() + "\\hasil.png";
+            cout << "Peringatan: Anda memasukkan direktori. Output akan disimpan sebagai: " << outputPath << endl;
+        }
+        break;
+    }
+
+    // kompresi domulai
+    auto start = chrono::high_resolution_clock::now(); // menghitung waktu
+
+    // Muat gambar
+    vector<vector<vector<unsigned char>>> rgb;
+    try
+    {
+        rgb = loadImage(inputPath, width, height);
+    }
+    catch (const exception &e)
+    {
+        cout << "Gagal memuat gambar: " << e.what() << endl;
+        return 1;
+    }
+    vector<vector<vector<unsigned char>>> output(height, vector<vector<unsigned char>>(width, vector<unsigned char>(3)));
+
+    // Frame pertama: gambar rata-rata seluruh gambar
+    unsigned char avgR, avgG, avgB;
+    getAverageColor(rgb, 0, 0, width, height, avgR, avgG, avgB);
+    fillArea(output, 0, 0, width, height, avgR, avgG, avgB);
+
+    string errorMethod;
+    switch (pilihmetode)
+    {
+    case 1:
+        errorMethod = "Variance";
+        break;
+    case 2:
+        errorMethod = "MAD";
+        break;
+    case 3:
+        errorMethod = "MaxPixelDifference";
+        break;
+    case 4:
+        errorMethod = "Entropy";
+        break;
+    default:
+        cout << "Kesalahan pada input: harap masukkan angka antara 1 - 4" << endl;
+        return 1;
+    }
+
+    Node *root = nullptr;
+    try
+    {
+        reconstructImage(root, output);
+        saveImage(outputPath, output, width, height);
+    }
+    catch (const exception &e)
+    {
+        cout << "Terjadi kesalahan: " << e.what() << endl;
+        deleteTree(root);
+        return 1;
+    }
+
     // waktu eksekusi
-    auto start = chrono::high_resolution_clock::now();
     auto end = chrono::high_resolution_clock::now();
     chrono::duration<double> duration = end - start;
     cout << "Waktu eksekusi: " << duration.count() << " detik" << endl;
@@ -133,18 +242,27 @@ int main()
 
     // ukuran gambar sebelum kompresi
     cout << "Hasil Kompresi" << endl;
-    uintmax_t sizeInBytesBefore = fs::file_size(inputPath);
-    double sizeInKBBefore = sizeInBytesBefore / 1024.0;
-    double sizeInMBBefore = sizeInKBBefore / 1024.0;
-    cout << "Ukuran file sebelum kompresi (dalam KB): " << sizeInKBBefore << " KB" << std::endl;
-    cout << "Ukuran file sebelum kompresi (dalam MB): " << sizeInMBBefore << " MB" << std::endl;
+    uintmax_t sizeInBytesBefore;
+    try
+    {
+        sizeInBytesBefore = fs::file_size(inputPath);
+        double sizeInKBBefore = sizeInBytesBefore / 1024.0;
+        double sizeInMBBefore = sizeInKBBefore / 1024.0;
+        cout << "\nUkuran file sebelum kompresi (dalam KB): " << sizeInKBBefore << " KB" << endl;
+        cout << "Ukuran file sebelum kompresi (dalam MB): " << sizeInMBBefore << " MB" << endl;
+    }
+    catch (const fs::filesystem_error &e)
+    {
+        cout << "Gagal membaca ukuran file asli: " << e.what() << endl;
+        return 1;
+    }
 
     // ukuran gambar sesudah kompresi
     uintmax_t sizeInBytesAfter = fs::file_size(outputPath);
     double sizeInKBAfter = sizeInBytesAfter / 1024.0;
     double sizeInMBAfter = sizeInKBAfter / 1024.0;
-    cout << "Ukuran file hasil kompresi (dalam KB): " << sizeInKBBefore << " KB" << std::endl;
-    cout << "Ukuran file hasil kompresi (dalam MB): " << sizeInMBBefore << " MB" << std::endl;
+    cout << "Ukuran file hasil kompresi (dalam KB): " << sizeInKBAfter << " KB" << std::endl;
+    cout << "Ukuran file hasil kompresi (dalam MB): " << sizeInMBAfter << " MB" << std::endl;
 
     // presentase kompresi
     uintmax_t compressedSize;
@@ -155,4 +273,6 @@ int main()
     // banyak simpul pada pohon
 
     // gambar hasil kompresi pada alamat yang sudah ditentukan
+    cout << "Gambar hasil disimpan sebagai 'hasil.png' pada " << outputPath << endl;
+    deleteTree(root);
 }
