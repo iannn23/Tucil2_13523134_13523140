@@ -35,7 +35,7 @@ vector<vector<vector<unsigned char>>> loadImage(const string& path, int& width, 
     return rgb;
 }
 
-void saveImage(const string&path, const vector<vector<vector<unsigned char>>>& rgb, int width, int height) {
+void saveImage(const string&path, const vector<vector<vector<unsigned char>>>& rgb, int width, int height, string extension) {
     vector<unsigned char> data(width * height * 3);
 
     for (int y = 0; y < height; y++) {
@@ -47,7 +47,17 @@ void saveImage(const string&path, const vector<vector<vector<unsigned char>>>& r
         }
     }
     
-    int success = stbi_write_png(path.c_str(), width, height, 3, data.data(), width * 3);
+    int success;
+
+    if (extension == ".jpg") {
+        success = stbi_write_jpg(path.c_str(), width, height, 3, data.data(), width * 3);
+    }
+    else if (extension == ".png") {
+        success = stbi_write_png(path.c_str(), width, height, 3, data.data(), width * 3);
+    }
+    else if (extension == ".jpeg") {
+        success = stbi_write_jpg(path.c_str(), width, height, 3, data.data(), width * 3);
+    }
 
     if (!success) {
         cerr << "Gagal menyimpan gambar ke: " << path << endl;
