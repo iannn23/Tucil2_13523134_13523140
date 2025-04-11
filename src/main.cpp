@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 #include <chrono>
+#include <algorithm>
+#include <cctype>
 #include <filesystem>
 #include "..\src\Quadtree\Quadtree.cpp"
 #include "..\src\ImageIO\ImageIO.cpp"
@@ -244,7 +246,6 @@ int main()
         return 1;
     }
 
-
     // waktu eksekusi
     auto end = chrono::high_resolution_clock::now();
     chrono::duration<double> duration = end - start;
@@ -260,7 +261,7 @@ int main()
         sizeInBytesBefore = fs::file_size(inputPath);
         double sizeInKBBefore = sizeInBytesBefore / 1024.0;
         double sizeInMBBefore = sizeInKBBefore / 1024.0;
-        cout << "\nUkuran file sebelum kompresi (dalam KB): " << sizeInKBBefore << " KB" << endl;
+        cout << "Ukuran file sebelum kompresi (dalam KB): " << sizeInKBBefore << " KB" << endl;
         cout << "Ukuran file sebelum kompresi (dalam MB): " << sizeInMBBefore << " MB" << endl;
     }
     catch (const fs::filesystem_error &e)
@@ -268,7 +269,6 @@ int main()
         cout << "Gagal membaca ukuran file asli: " << e.what() << endl;
         return 1;
     }
-
 
     // ukuran gambar sesudah kompresi
     uintmax_t sizeInBytesAfter = fs::file_size(outputPath);
@@ -281,14 +281,14 @@ int main()
     uintmax_t compressedSize;
     float compressionPrecentage = ((1 - (static_cast<double>(sizeInBytesAfter) / sizeInBytesBefore)) * 100);
     cout << "Persentase kompresi: " << compressionPrecentage << "%" << endl;
-    
+
     // kedalaman
     int depth = calculateTreeDepth(root);
-    cout <<"Kedalaman pohon: " << depth << endl;
+    cout << "Kedalaman pohon: " << depth << endl;
 
     // banyak simpul pada pohon
-    int nodes =  calculateNodeCount(root);
-    cout <<"Banyak simpul daun: " << nodes << endl;
+    int nodes = calculateNodeCount(root);
+    cout << "Banyak simpul daun: " << nodes << endl;
 
     // gambar hasil kompresi pada alamat yang sudah ditentukan
     cout << "Gambar hasil disimpan sebagai 'hasil.png' pada " << outputPath << endl;
