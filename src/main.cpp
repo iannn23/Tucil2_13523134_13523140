@@ -30,6 +30,7 @@ int main()
 {
     string inputPath;
     string outputPath;
+    string extension;
     int pilihmetode;
     double threshold;
     int minBlockSize;
@@ -72,6 +73,14 @@ int main()
             {
                 cout << "Direktori ditemukan, tetapi file tidak ada.\n";
             }
+            continue;
+        }
+        fs::path pathObj(inputPath);
+        extension = pathObj.extension().string();
+        transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+        if (extension != ".jpg" && extension != ".jpeg" && extension != ".png")
+        {
+            cout << "Error: File harus berekstensi .jpg, .jpeg, atau .png. Ekstensi yang dimasukkan: " << extension << endl;
             continue;
         }
         break;
@@ -226,7 +235,7 @@ int main()
     try
     {
         reconstructImage(root, output);
-        saveImage(outputPath, output, width, height);
+        saveImage(outputPath, output, width, height, extension);
     }
     catch (const exception &e)
     {
@@ -272,15 +281,14 @@ int main()
     uintmax_t compressedSize;
     float compressionPrecentage = ((1 - (static_cast<double>(sizeInBytesAfter) / sizeInBytesBefore)) * 100);
     cout << "Persentase kompresi: " << compressionPrecentage << "%" << endl;
-    // kedalaman pohon
+    
+    // kedalaman
+    int depth = calculateTreeDepth(root);
+    cout <<"Kedalaman pohon: " << depth << endl;
 
     // banyak simpul pada pohon
     int nodes =  calculateNodeCount(root);
-    cout <<"Banyak daun: " << nodes << endl;
-
-    // kedalaman
-    int depth = calculateTreeDepth(root);
-    cout <<"Kedalaman: " << depth << endl;
+    cout <<"Banyak simpul daun: " << nodes << endl;
 
     // gambar hasil kompresi pada alamat yang sudah ditentukan
     cout << "Gambar hasil disimpan sebagai 'hasil.png' pada " << outputPath << endl;
