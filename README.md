@@ -23,3 +23,7 @@ setelah itu kalian akan diminta untuk melakukan hal hal berikut:
 
 Setelah kalian memasukkan input yang diminta oleh program, maka program akan melakukan kompresi.
 
+Program ini dibuat oleh :
+
+> 13523134 Sebastian Enrico Nathanael <br>
+> 13523140 Mahesa Fadhillah Andre <br>
