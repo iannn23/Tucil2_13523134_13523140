@@ -53,27 +53,6 @@ void getAverageColor(
     avgB = static_cast<unsigned char>(sumB / total);
 }
 
-double calculateVariance(
-    const vector<vector<vector<unsigned char>>>& rgb,
-    int x, int y, int width, int height,
-    unsigned char avgR, unsigned char avgG, unsigned char avgB
-) {
-    long long totalError = 0;
-
-    for (int i = y; i < y + height; i++) {
-        for (int j = x; j < x + width; j++) {
-            int dr = rgb[i][j][0] - avgR;
-            int dg = rgb[i][j][1] - avgG;
-            int db = rgb[i][j][2] - avgB;
-
-            totalError += dr * dr + dg * dg + db * db;
-        }
-    }
-
-    int totalPixels = width * height;
-    return static_cast<double>(totalError) / (totalPixels * 3); 
-}
-
 Node* buildQuadtree (
     const vector<vector<vector<unsigned char>>>& rgb,
     int x, int y, int width, int height,
@@ -167,4 +146,28 @@ void reconstructImage (
         reconstructImage(root->bottomLeft, outputImage);
         reconstructImage(root->bottomRight, outputImage);
     }
+}
+
+// Fungsi untuk menghitung kedalaman pohon
+int calculateTreeDepth(Node* root) {
+    if (!root) return 0;
+    if (root->isLeaf) return 1;
+
+    int depthTL = calculateTreeDepth(root->topLeft);
+    int depthTR = calculateTreeDepth(root->topRight);
+    int depthBL = calculateTreeDepth(root->bottomLeft);
+    int depthBR = calculateTreeDepth(root->bottomRight);
+
+    return 1 + max(max(depthTL, depthTR), max(depthBL, depthBR));
+}
+
+// Fungsi untuk menghitung jumlah simpul
+int calculateNodeCount(Node* root) {
+    if (!root) return 0;
+    if (root->isLeaf) return 1;
+
+    return 1 + calculateNodeCount(root->topLeft) +
+               calculateNodeCount(root->topRight) +
+               calculateNodeCount(root->bottomLeft) +
+               calculateNodeCount(root->bottomRight);
 }

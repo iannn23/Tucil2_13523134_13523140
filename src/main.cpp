@@ -169,6 +169,11 @@ int main()
             cout << "Error: Direktori output tidak ditemukan. Silakan masukkan alamat yang valid.\n";
             continue;
         }
+        // Hapus tanda kutip di awal dan akhir jika ada
+        if (outputPath.front() == '"' && outputPath.back() == '"')
+        {
+            outputPath = outputPath.substr(1, outputPath.length() - 2);
+        }
         // Cek apakah outputPath adalah direktori
         if (fs::exists(outputPathObj) && fs::is_directory(outputPathObj))
         {
@@ -195,10 +200,7 @@ int main()
     }
     vector<vector<vector<unsigned char>>> output(height, vector<vector<unsigned char>>(width, vector<unsigned char>(3)));
 
-    // Frame pertama: gambar rata-rata seluruh gambar
     unsigned char avgR, avgG, avgB;
-    getAverageColor(rgb, 0, 0, width, height, avgR, avgG, avgB);
-    fillArea(output, 0, 0, width, height, avgR, avgG, avgB);
 
     string errorMethod;
     switch (pilihmetode)
@@ -220,7 +222,7 @@ int main()
         return 1;
     }
 
-    Node *root = nullptr;
+    Node *root = buildQuadtree(rgb, 0, 0, width, height, minBlockSize, threshold, errorMethod);
     try
     {
         reconstructImage(root, output);
@@ -232,6 +234,7 @@ int main()
         deleteTree(root);
         return 1;
     }
+
 
     // waktu eksekusi
     auto end = chrono::high_resolution_clock::now();
@@ -257,6 +260,7 @@ int main()
         return 1;
     }
 
+
     // ukuran gambar sesudah kompresi
     uintmax_t sizeInBytesAfter = fs::file_size(outputPath);
     double sizeInKBAfter = sizeInBytesAfter / 1024.0;
@@ -271,6 +275,12 @@ int main()
     // kedalaman pohon
 
     // banyak simpul pada pohon
+    int nodes =  calculateNodeCount(root);
+    cout <<"Banyak daun: " << nodes << endl;
+
+    // kedalaman
+    int depth = calculateTreeDepth(root);
+    cout <<"Kedalaman: " << depth << endl;
 
     // gambar hasil kompresi pada alamat yang sudah ditentukan
     cout << "Gambar hasil disimpan sebagai 'hasil.png' pada " << outputPath << endl;
