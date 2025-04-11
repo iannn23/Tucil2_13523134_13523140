@@ -11,8 +11,8 @@ asumsi kalian berada pada folder Tucil2_13523134_13523140
 ```shell
 jalankan:
 cd src
-g++ -o program main.cpp
-./program
+ g++ -o ..\bin\program main.cpp
+..\bin\program
 ```
 setelah itu kalian akan diminta untuk melakukan hal hal berikut:
 1. Input alamat absolut gamabar yang ingin dikompresi
