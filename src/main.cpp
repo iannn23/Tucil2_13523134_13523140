@@ -3,9 +3,10 @@
 #include <string>
 #include <vector>
 #include <chrono>
+#include <filesystem>
 #include "..\src\Quadtree\Quadtree.cpp"
 #include "..\src\ImageIO\ImageIO.cpp"
-
+namespace fs = std::filesystem;
 using namespace std;
 
 // input
@@ -122,8 +123,7 @@ int main()
         break;
     }
 
-
-    //waktu eksekusi
+    // waktu eksekusi
     auto start = chrono::high_resolution_clock::now();
     auto end = chrono::high_resolution_clock::now();
     chrono::duration<double> duration = end - start;
@@ -131,16 +131,28 @@ int main()
     chrono::duration<double, milli> duration_ms = end - start;
     cout << "Waktu eksekusi: " << duration_ms.count() << " milidetik" << endl;
 
-    //ukuran gambar sebelum kompresi
-    cout << "Ukuran gambar: " << width << "x" << height << " piksel" << std::endl;
+    // ukuran gambar sebelum kompresi
+    cout << "Hasil Kompresi" << endl;
+    uintmax_t sizeInBytesBefore = fs::file_size(inputPath);
+    double sizeInKBBefore = sizeInBytesBefore / 1024.0;
+    double sizeInMBBefore = sizeInKBBefore / 1024.0;
+    cout << "Ukuran file sebelum kompresi (dalam KB): " << sizeInKBBefore << " KB" << std::endl;
+    cout << "Ukuran file sebelum kompresi (dalam MB): " << sizeInMBBefore << " MB" << std::endl;
 
-    //ukuran gambar sesudah kompresi
+    // ukuran gambar sesudah kompresi
+    uintmax_t sizeInBytesAfter = fs::file_size(outputPath);
+    double sizeInKBAfter = sizeInBytesAfter / 1024.0;
+    double sizeInMBAfter = sizeInKBAfter / 1024.0;
+    cout << "Ukuran file hasil kompresi (dalam KB): " << sizeInKBBefore << " KB" << std::endl;
+    cout << "Ukuran file hasil kompresi (dalam MB): " << sizeInMBBefore << " MB" << std::endl;
 
-    //presentase kompresi
+    // presentase kompresi
+    uintmax_t compressedSize;
+    float compressionPrecentage = ((1 - (static_cast<double>(sizeInBytesAfter) / sizeInBytesBefore)) * 100);
+    cout << "Persentase kompresi: " << compressionPrecentage << "%" << endl;
+    // kedalaman pohon
 
-    //kedalaman pohon
+    // banyak simpul pada pohon
 
-    //banyak simpul pada pohon
-
-    //gambar hasil kompresi pada alamat yang sudah ditentukan
+    // gambar hasil kompresi pada alamat yang sudah ditentukan
 }
