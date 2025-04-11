@@ -7,9 +7,19 @@ Input berupa alamat gambar, nilai minimum blok, threshold, dan alamat untuk outp
 ## Cara Menjalankan Program 
 
 # Compile Program
-
+asumsi kalian berada pada folder Tucil2_13523134_13523140
 ```shell
+jalankan:
 cd src
 g++ -o program main.cpp
 ./program
 ```
+setelah itu kalian akan diminta untuk melakukan hal hal berikut:
+1. Input alamat absolut gamabar yang ingin dikompresi
+2. Pilih metode perhitungan error (Variance, Mean Absolut Deviation, Max Pixel Difference, Entropy)
+3. Masukkan nilai threshold
+4. Masukkan ukuran blok minimum'
+5. Input alamat absolut gambar hasil kompresi
+
+Setelah kalian memasukkan input yang diminta oleh program, maka program akan melakukan kompresi.
+
