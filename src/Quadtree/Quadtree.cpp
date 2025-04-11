@@ -68,8 +68,6 @@ Node *buildQuadtree(
    node->width = width;
    node->height = height;
 
-   getAverageColor(rgb, x, y, width, height, node->avgR, node->avgG, node->avgB);
-
    if (width * height <= minBlockSize)
    {
       node->isLeaf = true;
