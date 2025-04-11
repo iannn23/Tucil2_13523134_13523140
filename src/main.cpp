@@ -31,6 +31,7 @@ int main()
     string inputPath;
     string outputPath;
     string extension;
+    string outputExtension;
     int pilihmetode;
     double threshold;
     int minBlockSize;
@@ -165,31 +166,41 @@ int main()
             cout << "Error: Alamat file tidak boleh kosong. Silakan coba lagi.\n";
             continue;
         }
-        // Hapus tanda kutip di awal dan akhir jika ada
-        if (outputPath.front() == '"' && outputPath.back() == '"')
-        {
-            outputPath = inputPath.substr(1, inputPath.length() - 2);
-        }
-        // Cek apakah direktori output valid
-        fs::path outputPathObj = fs::path(outputPath);
-        fs::path outputDir = outputPathObj.parent_path();
-        if (!outputDir.empty() && !fs::exists(outputDir))
-        {
-            cout << "Error: Direktori output tidak ditemukan. Silakan masukkan alamat yang valid.\n";
-            continue;
-        }
+        
         // Hapus tanda kutip di awal dan akhir jika ada
         if (outputPath.front() == '"' && outputPath.back() == '"')
         {
             outputPath = outputPath.substr(1, outputPath.length() - 2);
         }
-        // Cek apakah outputPath adalah direktori
-        if (fs::exists(outputPathObj) && fs::is_directory(outputPathObj))
+        // Cek apakah direktori output valid
+        fs::path outputPathObj = fs::path(outputPath);
+        fs::path outputDir = outputPathObj.parent_path();
+        
+        if (!outputDir.empty() && !fs::exists(outputDir))
         {
-            // Jika direktori, tambahkan nama file default
-            outputPath = outputPathObj.string() + "\\hasil.png";
-            cout << "Peringatan: Anda memasukkan direktori. Output akan disimpan sebagai: " << outputPath << endl;
+            cout << "Error: Direktori output tidak ditemukan. Silakan masukkan alamat yang valid.\n";
+            continue;
         }
+
+        // cek ekstensi file output
+        outputExtension = outputPathObj.extension().string();
+        transform(outputExtension.begin(), outputExtension.end(), outputExtension.begin(), ::tolower);
+
+        // Cek apakah outputPath adalah direktori
+        if (outputExtension.empty())
+        {
+            outputPath += "\\hasil"+extension;
+            outputPathObj = fs::path(outputPath);
+            outputExtension = extension;
+            cout << "Peringatan: Tidak ada ekstensi file. Menggunakan ekstensi dari input: " << outputPath << endl;
+        }
+
+        if (outputExtension != extension)
+        {
+            cout << "Error: Ekstensi file output harus sama dengan input (" << extension << "). Ekstensi yang dimasukkan: " << outputExtension << endl;
+            continue;
+        }
+
         break;
     }
 
@@ -235,7 +246,7 @@ int main()
     try
     {
         reconstructImage(root, output);
-        saveImage(outputPath, output, width, height, extension);
+        saveImage(outputPath, output, width, height, outputExtension);
     }
     catch (const exception &e)
     {
@@ -291,6 +302,6 @@ int main()
     cout <<"Banyak simpul daun: " << nodes << endl;
 
     // gambar hasil kompresi pada alamat yang sudah ditentukan
-    cout << "Gambar hasil disimpan sebagai 'hasil.png' pada " << outputPath << endl;
+    cout << "Gambar hasil disimpan pada " << outputPath << endl;
     deleteTree(root);
 }
